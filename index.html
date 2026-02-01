@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bakery Pre-Order Form</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #d4735e;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        
+        .info-box {
+            background: #fff9f5;
+            border-left: 4px solid #d4735e;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .info-box h3 {
+            color: #d4735e;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #d4735e;
+        }
+        
+        .product-card {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #f0f0f0;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .product-name {
+            font-size: 1.3em;
+            color: #d4735e;
+            font-weight: 600;
+        }
+        
+        .product-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .quantity-option {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .quantity-option label {
+            font-weight: normal;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .order-summary {
+            background: #d4735e;
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+        }
+        
+        .order-summary h3 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: #5a3e36;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background: #4a2e26;
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .success-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #d4735e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍪 Sweet Treats Pre-Order</h1>
+        <p class="subtitle">Baked with love, made fresh for you</p>
+        
+        <div class="info-box">
+            <h3>📅 This Week's Pickup Times</h3>
+            <p><strong>Saturday:</strong> 2:00 PM - 4:00 PM</p>
+            <p><strong>Sunday:</strong> 10:00 AM - 12:00 PM</p>
+            <p><strong>Order Deadline:</strong> Wednesday at 8:00 PM</p>
+            <p style="margin-top: 10px; color: #d4735e;"><strong>Minimum 6 items for cinnamon rolls and cookies</strong></p>
+        </div>
+        
+        <form id="orderForm">
+            <div class="form-section">
+                <label for="name">Your Name *</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            
+            <div class="form-section">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            
+            <div class="form-section">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+            
+            <div class="form-section">
+                <label for="pickup">Pickup Time *</label>
+                <select id="pickup" name="pickup" required>
+                    <option value="">-- Select Pickup Time --</option>
+                    <option value="Saturday 2-4pm">Saturday 2:00 PM - 4:00 PM</option>
+                    <option value="Sunday 10am-12pm">Sunday 10:00 AM - 12:00 PM</option>
+                </select>
+            </div>
+            
+            <h2 style="color: #d4735e; margin: 30px 0 20px;">Select Your Treats</h2>
+            
+            <!-- Cinnamon Rolls -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-name">Cinnamon Rolls</div>
+                </div>
+                <div class="product-description">
+                    Soft, fluffy cinnamon rolls with cream cheese frosting. Minimum order: 6 rolls
+                </div>
+                <div class="quantity-selector">
+                    <div class="quantity-option">
+                        <label>Select Quantity</label>
+                        <select id="rollsQty">
+                            <option value="0" data-price="0">-- Select --</option>
+                            <option value="6" data-price="33">Half Dozen (6) - $33.00</option>
+                            <option value="12" data-price="60">Full Dozen (12) - $60.00</option>
+                            <option value="18" data-price="85">18 Rolls - $85.00</option>
+                            <option value="24" data-price="110">2 Dozen (24) - $110.00</option>
+                            <option value="30" data-price="138">30 Rolls - $138.00</option>
+                            <option value="36" data-price="162">3 Dozen (36) - $162.00</option>
+                            <option value="48" data-price="215">4 Dozen (48) - $215.00</option>
+                            <option value="60" data-price="265">5 Dozen (60) - $265.00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="error-message" id="rolls-error">Minimum order is 6 cinnamon rolls</div>
+            </div>
+            
+            <!-- Lemon Crinkle Cookies -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-name">Lemon Crinkle Cookies</div>
+                </div>
+                <div class="product-description">
+                    Bright, zesty cookies with powdered sugar. Minimum order: 6 cookies
+                </div>
+                <div class="quantity-selector">
+                    <div class="quantity-option">
+                        <label>Select Quantity</label>
+                        <select id="cookiesQty">
+                            <option value="0" data-price="0">-- Select --</option>
+                            <option value="6" data-price="16">Half Dozen (6) - $16.00</option>
+                            <option value="12" data-price="28">Full Dozen (12) - $28.00</option>
+                            <option value="18" data-price="42">18 Cookies - $42.00</option>
+                            <option value="24" data-price="52">2 Dozen (24) - $52.00</option>
+                            <option value="30" data-price="65">30 Cookies - $65.00</option>
+                            <option value="36" data-price="76">3 Dozen (36) - $76.00</option>
+                            <option value="48" data-price="98">4 Dozen (48) - $98.00</option>
+                            <option value="60" data-price="120">5 Dozen (60) - $120.00</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="error-message" id="cookies-error">Minimum order is 6 cookies</div>
+            </div>
+            
+            <!-- Banana Pudding -->
+            <div class="product-card">
+                <div class="product-header">
+                    <div class="product-name">Banana Pudding</div>
+                </div>
+                <div class="product-description">
+                    Creamy layers of vanilla pudding, fresh bananas, and vanilla wafers in a pint cup
+                </div>
+                <div class="quantity-selector">
+                    <div class="quantity-option">
+                        <label>Pint Cups - $9.00 each</label>
+                        <input type="number" id="pudding" min="0" max="20" value="0">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary -->
+            <div class="order-summary" id="orderSummary" style="display: none;">
+                <h3>Order Summary</h3>
+                <div id="summaryItems"></div>
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span id="totalPrice">$0.00</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">Place Order</button>
+            
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 15px; color: #666;">Submitting your order...</p>
+            </div>
+            
+            <div class="success-message" id="successMessage">
+                <h3>🎉 Order Submitted!</h3>
+                <p>Thank you for your order! You'll receive a confirmation email shortly.</p>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        // ⚠️ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+
+        const form = document.getElementById('orderForm');
+        const rollsSelect = document.getElementById('rollsQty');
+        const cookiesSelect = document.getElementById('cookiesQty');
+        const pudInput = document.getElementById('pudding');
+        const orderSummary = document.getElementById('orderSummary');
+        const summaryItems = document.getElementById('summaryItems');
+        const totalPrice = document.getElementById('totalPrice');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const successMessage = document.getElementById('successMessage');
+
+        function calculateTotal() {
+            let total = 0;
+            let items = [];
+
+            const totalRolls = parseInt(rollsSelect.value) || 0;
+            const rollsPrice = parseInt(rollsSelect.options[rollsSelect.selectedIndex].dataset.price) || 0;
+
+            const totalCookies = parseInt(cookiesSelect.value) || 0;
+            const cookiesPrice = parseInt(cookiesSelect.options[cookiesSelect.selectedIndex].dataset.price) || 0;
+
+            const pudding = parseInt(pudInput.value) || 0;
+
+            document.getElementById('rolls-error').style.display = 'none';
+            document.getElementById('cookies-error').style.display = 'none';
+
+            if (totalRolls > 0) {
+                total += rollsPrice;
+                items.push({ name: `Cinnamon Rolls (${totalRolls})`, price: rollsPrice });
+            }
+
+            if (totalCookies > 0) {
+                total += cookiesPrice;
+                items.push({ name: `Lemon Crinkle Cookies (${totalCookies})`, price: cookiesPrice });
+            }
+
+            if (pudding > 0) {
+                const puddingTotal = pudding * 9;
+                total += puddingTotal;
+                items.push({ name: `Banana Pudding (${pudding} pint${pudding > 1 ? 's' : ''})`, price: puddingTotal });
+            }
+
+            if (items.length > 0) {
+                orderSummary.style.display = 'block';
+                summaryItems.innerHTML = items.map(item =>
+                    `<div class="summary-item">
+                        <span>${item.name}</span>
+                        <span>$${item.price.toFixed(2)}</span>
+                    </div>`
+                ).join('');
+                totalPrice.textContent = `$${total.toFixed(2)}`;
+            } else {
+                orderSummary.style.display = 'none';
+            }
+        }
+
+        rollsSelect.addEventListener('change', calculateTotal);
+        cookiesSelect.addEventListener('change', calculateTotal);
+        pudInput.addEventListener('input', calculateTotal);
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const totalRolls = parseInt(rollsSelect.value) || 0;
+            const totalCookies = parseInt(cookiesSelect.value) || 0;
+            const pudding = parseInt(pudInput.value) || 0;
+
+            let isValid = true;
+
+            if (totalRolls === 0 && totalCookies === 0 && pudding === 0) {
+                alert('Please select at least one item to order!');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                alert('Please configure the Google Apps Script URL in the code first!');
+                return;
+            }
+
+            const formData = new FormData(form);
+            const orderData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                pickup: formData.get('pickup'),
+                items: {
+                    cinnamonRolls: { total: totalRolls },
+                    lemonCookies: { total: totalCookies },
+                    bananaPudding: pudding
+                },
+                totalPrice: totalPrice.textContent
+            };
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                loading.style.display = 'none';
+                successMessage.style.display = 'block';
+                form.style.display = 'none';
+                orderSummary.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

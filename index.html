@@ -368,7 +368,7 @@
     
     <script>
         // ⚠️ REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
-        const SCRIPT_URL = https://script.google.com/macros/s/AKfycbzdBW4TfFB4pEbosrC3qPBFirz7IhW0rYmPtfR4-oWQLknGI4c9SpM1xLljmUNpkMg5NA/exec;
+        const SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
 
         const form = document.getElementById('orderForm');
         const rollsSelect = document.getElementById('rollsQty');
@@ -381,46 +381,302 @@
         const loading = document.getElementById('loading');
         const successMessage = document.getElementById('successMessage');
 
+        let currentTotal = 0;
+
         function calculateTotal() {
-            let total = 0;
+            currentTotal = 0;
             let items = [];
 
             const totalRolls = parseInt(rollsSelect.value) || 0;
-            const rollsPrice = parseInt(rollsSelect.options[rollsSelect.selectedIndex].dataset.price) || 0;
+            const rollsPrice = parseFloat(rollsSelect.options[rollsSelect.selectedIndex].getAttribute('data-price')) || 0;
 
             const totalCookies = parseInt(cookiesSelect.value) || 0;
-            const cookiesPrice = parseInt(cookiesSelect.options[cookiesSelect.selectedIndex].dataset.price) || 0;
+            const cookiesPrice = parseFloat(cookiesSelect.options[cookiesSelect.selectedIndex].getAttribute('data-price')) || 0;
 
             const pudding = parseInt(pudInput.value) || 0;
 
-            document.getElementById('rolls-error').style.display = 'none';
-            document.getElementById('cookies-error').style.display = 'none';
-
             if (totalRolls > 0) {
-                total += rollsPrice;
-                items.push({ name: `Cinnamon Rolls (${totalRolls})`, price: rollsPrice });
+                currentTotal += rollsPrice;
+                items.push({ name: 'Cinnamon Rolls (' + totalRolls + ')', price: rollsPrice });
             }
 
             if (totalCookies > 0) {
-                total += cookiesPrice;
-                items.push({ name: `Lemon Crinkle Cookies (${totalCookies})`, price: cookiesPrice });
+                currentTotal += cookiesPrice;
+                items.push({ name: 'Lemon Crinkle Cookies (' + totalCookies + ')', price: cookiesPrice });
             }
 
             if (pudding > 0) {
-                const puddingTotal = pudding * 9;
-                total += puddingTotal;
-                items.push({ name: `Banana Pudding (${pudding} pint${pudding > 1 ? 's' : ''})`, price: puddingTotal });
+                var puddingTotal = pudding * 9;
+                currentTotal += puddingTotal;
+                items.push({ name: 'Banana Pudding (' + pudding + ' pint' + (pudding > 1 ? 's' : '') + ')', price: puddingTotal });
             }
 
             if (items.length > 0) {
                 orderSummary.style.display = 'block';
-                summaryItems.innerHTML = items.map(item =>
-                    `<div class="summary-item">
-                        <span>${item.name}</span>
-                        <span>$${item.price.toFixed(2)}</span>
-                    </div>`
-                ).join('');
-                totalPrice.textContent = `$${total.toFixed(2)}`;
+                var html = '';
+                for (var i = 0; i < items.length; i++) {
+                    html += '<div class="summary-item"><span>' + items[i].name + '</span><span>
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var totalRolls = parseInt(rollsSelect.value) || 0;
+            var totalCookies = parseInt(cookiesSelect.value) || 0;
+            var pudding = parseInt(pudInput.value) || 0;
+
+            if (totalRolls === 0 && totalCookies === 0 && pudding === 0) {
+                alert('Please select at least one item to order!');
+                return;
+            }
+
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                alert('Please configure the Google Apps Script URL in the code first!');
+                return;
+            }
+
+            var orderData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                pickup: document.getElementById('pickup').value,
+                items: {
+                    cinnamonRolls: { total: totalRolls },
+                    lemonCookies: { total: totalCookies },
+                    bananaPudding: pudding
+                },
+                totalPrice: '
+    </script>
+</body>
+</html> + items[i].price.toFixed(2) + '</span></div>';
+                }
+                summaryItems.innerHTML = html;
+                totalPrice.textContent = '
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const totalRolls = parseInt(rollsSelect.value) || 0;
+            const totalCookies = parseInt(cookiesSelect.value) || 0;
+            const pudding = parseInt(pudInput.value) || 0;
+
+            let isValid = true;
+
+            if (totalRolls === 0 && totalCookies === 0 && pudding === 0) {
+                alert('Please select at least one item to order!');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                alert('Please configure the Google Apps Script URL in the code first!');
+                return;
+            }
+
+            const formData = new FormData(form);
+            const orderData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                pickup: formData.get('pickup'),
+                items: {
+                    cinnamonRolls: { total: totalRolls },
+                    lemonCookies: { total: totalCookies },
+                    bananaPudding: pudding
+                },
+                totalPrice: totalPrice.textContent
+            };
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                loading.style.display = 'none';
+                successMessage.style.display = 'block';
+                form.style.display = 'none';
+                orderSummary.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html> + currentTotal.toFixed(2);
+            } else {
+                orderSummary.style.display = 'none';
+            }
+        }
+
+        rollsSelect.addEventListener('change', calculateTotal);
+        cookiesSelect.addEventListener('change', calculateTotal);
+        pudInput.addEventListener('input', calculateTotal);
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const totalRolls = parseInt(rollsSelect.value) || 0;
+            const totalCookies = parseInt(cookiesSelect.value) || 0;
+            const pudding = parseInt(pudInput.value) || 0;
+
+            let isValid = true;
+
+            if (totalRolls === 0 && totalCookies === 0 && pudding === 0) {
+                alert('Please select at least one item to order!');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                alert('Please configure the Google Apps Script URL in the code first!');
+                return;
+            }
+
+            const formData = new FormData(form);
+            const orderData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                pickup: formData.get('pickup'),
+                items: {
+                    cinnamonRolls: { total: totalRolls },
+                    lemonCookies: { total: totalCookies },
+                    bananaPudding: pudding
+                },
+                totalPrice: totalPrice.textContent
+            };
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                loading.style.display = 'none';
+                successMessage.style.display = 'block';
+                form.style.display = 'none';
+                orderSummary.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html> + currentTotal.toFixed(2)
+            };
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData)
+            }).then(function () {
+                loading.style.display = 'none';
+                form.style.display = 'none';
+                orderSummary.style.display = 'none';
+                successMessage.style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }).catch(function (error) {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html> + items[i].price.toFixed(2) + '</span></div>';
+                }
+                summaryItems.innerHTML = html;
+                totalPrice.textContent = '
+
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const totalRolls = parseInt(rollsSelect.value) || 0;
+            const totalCookies = parseInt(cookiesSelect.value) || 0;
+            const pudding = parseInt(pudInput.value) || 0;
+
+            let isValid = true;
+
+            if (totalRolls === 0 && totalCookies === 0 && pudding === 0) {
+                alert('Please select at least one item to order!');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            if (SCRIPT_URL === 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                alert('Please configure the Google Apps Script URL in the code first!');
+                return;
+            }
+
+            const formData = new FormData(form);
+            const orderData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                pickup: formData.get('pickup'),
+                items: {
+                    cinnamonRolls: { total: totalRolls },
+                    lemonCookies: { total: totalCookies },
+                    bananaPudding: pudding
+                },
+                totalPrice: totalPrice.textContent
+            };
+
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+
+                loading.style.display = 'none';
+                successMessage.style.display = 'block';
+                form.style.display = 'none';
+                orderSummary.style.display = 'none';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            } catch (error) {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('There was an error submitting your order. Please try again or contact us directly.');
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html> + currentTotal.toFixed(2);
             } else {
                 orderSummary.style.display = 'none';
             }
